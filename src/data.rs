@@ -14,6 +14,7 @@ pub struct DataEntry {
     pub merchant_category_code_description: Option<String>,
     pub acct_category_id: Option<String>,
     pub memo: Option<String>,
+    pub trx_date: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -40,26 +41,53 @@ pub struct Root {
     memo: Option<String>,
     card_holder: CardHolder,
     accounting_categories: Vec<AccountingCategory>,
+    user_transaction_time: Option<String>,
 }
 
 impl From<Root> for DataEntry {
     fn from(root: Root) -> Self {
         DataEntry {
-            id: root.id,
-            card_id: root.card_id,
-            first_name: root.card_holder.first_name,
-            last_name: root.card_holder.last_name,
-            location_name: root.card_holder.location_name,
-            department_name: root.card_holder.department_name,
+            id: root
+                .id
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            card_id: root
+                .card_id
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            first_name: root
+                .card_holder
+                .first_name
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            last_name: root
+                .card_holder
+                .last_name
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            location_name: root
+                .card_holder
+                .location_name
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            department_name: root
+                .card_holder
+                .department_name
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
             amount: root.amount,
-            merchant_descriptor: root.merchant_descriptor,
-            merchant_name: root.merchant_name,
-            merchant_category_code_description: root.merchant_category_code_description,
+            merchant_descriptor: root
+                .merchant_descriptor
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            merchant_name: root
+                .merchant_name
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            merchant_category_code_description: root
+                .merchant_category_code_description
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
             acct_category_id: root
                 .accounting_categories
                 .first()
-                .map(|x| x.category_id.clone()),
+                .map(|x| x.category_id.clone())
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
             memo: root.memo,
+            trx_date: root
+                .user_transaction_time
+                .map_or_else(|| None, |f| Some(f[..10].to_string())),
         }
     }
 }

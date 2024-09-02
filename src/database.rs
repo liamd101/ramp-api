@@ -8,6 +8,8 @@ pub fn insert_data_server(
 ) -> Result<()> {
     let env = Environment::new()?;
 
+    println!("{:?}", data[0].trx_date);
+
     let connection_string = format!(
         "
         Driver={};\
@@ -30,15 +32,16 @@ pub fn insert_data_server(
         conn.execute(
             "
 INSERT INTO [dbo].[_DSI_RampTrx_tbl] (
-    Id, Card_Id, First_Name, Last_Name, Location_Name, Department_Name,
+    Id, Card_Id, Trx_Date, First_Name, Last_Name, Location_Name, Department_Name,
     Amount, Merchant_Descriptor, Merchant_Name, Merchant_Category_Code_Description,
     Acct_Category_Id, Memo
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             (
                 &entry.id.into_parameter(),
                 &entry.card_id.into_parameter(),
+                &entry.trx_date.into_parameter(),
                 &entry.first_name.into_parameter(),
                 &entry.last_name.into_parameter(),
                 &entry.location_name.into_parameter(),
