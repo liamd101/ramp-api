@@ -2,10 +2,10 @@ mod api;
 
 mod config;
 mod data;
-mod database;
+// mod database;
 
 use anyhow::{anyhow, Result};
-use tracing::{error, info};
+use tracing::{error, info, debug, Level};
 use tracing_subscriber::fmt::format::FmtSpan;
 
 #[tokio::main]
@@ -45,6 +45,7 @@ async fn main() -> Result<()> {
         Ok(d) => {
             info!("Successfully retrieved data");
             info!("Data count: {}", d.len());
+            info!("Data: {:?}", d);
             d
         }
         Err(e) => {
@@ -53,13 +54,13 @@ async fn main() -> Result<()> {
         }
     };
 
-    match database::insert_data_server(settings.database, data) {
-        Ok(()) => info!("Successfully inserted data"),
-        Err(e) => {
-            error!("Error inserting data: {}", e);
-            return Err(anyhow!("Error inserting data: {}", e));
-        }
-    }
+    // match database::insert_data_server(settings.database, data) {
+    //     Ok(()) => info!("Successfully inserted data"),
+    //     Err(e) => {
+    //         error!("Error inserting data: {}", e);
+    //         return Err(anyhow!("Error inserting data: {}", e));
+    //     }
+    // }
 
     info!("Successfully ran application");
 

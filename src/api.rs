@@ -48,7 +48,8 @@ pub async fn get_data(token: &String) -> Result<Vec<data::DataEntry>> {
         "Authorization",
         format!("Bearer {}", token).parse().unwrap(),
     );
-    let params = [("state", "CLEARED")];
+    // let params = [("expense_policy_interaction_needs_review", "false"), ("sync_ready", "true")];
+    let params = [("state", "CLEARED"), ("has_no_sync_commits", "false"), ("sync_ready", "true")];
 
     let response = client
         .get(url)
