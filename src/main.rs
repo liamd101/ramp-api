@@ -2,10 +2,10 @@ mod api;
 
 mod config;
 mod data;
-// mod database;
+mod database;
 
 use anyhow::{anyhow, Result};
-use tracing::{error, info, debug, Level};
+use tracing::{error, info};
 use tracing_subscriber::fmt::format::FmtSpan;
 
 #[tokio::main]
@@ -41,7 +41,7 @@ async fn main() -> Result<()> {
         }
     };
 
-    let data: Vec<data::DataEntry> = match api::get_data(&token).await {
+    let data: Vec<data::ReimbursementRow> = match api::get_reimbursements(&token).await {
         Ok(d) => {
             info!("Successfully retrieved data");
             info!("Data count: {}", d.len());
@@ -54,13 +54,34 @@ async fn main() -> Result<()> {
         }
     };
 
+    match database::insert_reimbursement_server(settings.database, data) {
+        Ok(()) => info!("Successfully inserted data"),
+        Err(e) => {
+            error!("Error inserting data: {}", e);
+            return Err(anyhow!("Error inserting data: {}", e));
+        }
+    };
+
+    // let data: Vec<data::Transaction> = match api::get_transactions(&token).await {
+    //     Ok(d) => {
+    //         info!("Successfully retrieved data");
+    //         info!("Data count: {}", d.len());
+    //         info!("Data: {:?}", d);
+    //         d
+    //     }
+    //     Err(e) => {
+    //         error!("Error getting data: {}", e);
+    //         return Err(anyhow!("Error getting data: {}", e));
+    //     }
+    // };
+
     // match database::insert_data_server(settings.database, data) {
     //     Ok(()) => info!("Successfully inserted data"),
     //     Err(e) => {
     //         error!("Error inserting data: {}", e);
     //         return Err(anyhow!("Error inserting data: {}", e));
     //     }
-    // }
+    // };
 
     info!("Successfully ran application");
 

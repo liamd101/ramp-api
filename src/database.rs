@@ -1,10 +1,10 @@
-use crate::data::DataEntry;
+use crate::data::{ReimbursementRow, Transaction};
 use anyhow::Result;
 use odbc_api::{ConnectionOptions, Environment, IntoParameter};
 
-pub fn insert_data_server(
+pub fn insert_transaction_server(
     database_info: crate::config::Database,
-    data: Vec<DataEntry>,
+    data: Vec<Transaction>,
 ) -> Result<()> {
     let env = Environment::new()?;
 
@@ -52,6 +52,57 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 &entry.merchant_category_code_description.into_parameter(),
                 &entry.acct_category_id.into_parameter(),
                 &entry.memo.into_parameter(),
+            ),
+        )?;
+    }
+
+    Ok(())
+}
+
+pub fn insert_reimbursement_server(
+    database_info: crate::config::Database,
+    data: Vec<ReimbursementRow>,
+) -> Result<()> {
+    let env = Environment::new()?;
+
+    let connection_string = format!(
+        "
+        Driver={};\
+        Server={};\
+        UID={};\
+        PWD={};\
+        DATABASE={};\
+        ",
+        database_info.driver,
+        database_info.server,
+        database_info.user.id,
+        database_info.user.password,
+        database_info.database
+    );
+
+    let conn =
+        env.connect_with_connection_string(&connection_string, ConnectionOptions::default())?;
+
+    for entry in data {
+        conn.execute(
+            "
+INSERT INTO [dbo].[_DSI_RampExpTrx_tbl] (
+    Id, State, Trx_Date, User_Full_Name, Amount, Distance, Merchant_Name,
+    Merchant_Category_Code_Description, Acct_Category_Id, Type, Memo
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ",
+            (
+                &entry.id.into_parameter(),
+                &entry.state.into_parameter(),
+                &entry.trx_date.into_parameter(),
+                &entry.user_full_name.into_parameter(),
+                &entry.amount.into_parameter(),
+                &entry.distance.into_parameter(),
+                &entry.merchant.into_parameter(),
+                &entry.name.into_parameter(),
+                &entry.external_code.into_parameter(),
+                &entry.reimb_type.into_parameter(),
             ),
         )?;
     }

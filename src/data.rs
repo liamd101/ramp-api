@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Default)]
-pub struct DataEntry {
+pub struct Transaction {
     pub id: Option<String>,
     pub card_id: Option<String>,
     pub first_name: Option<String>,
@@ -44,9 +44,9 @@ pub struct Root {
     user_transaction_time: Option<String>,
 }
 
-impl From<Root> for DataEntry {
+impl From<Root> for Transaction {
     fn from(root: Root) -> Self {
-        DataEntry {
+        Transaction {
             id: root
                 .id
                 .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
@@ -95,4 +95,90 @@ impl From<Root> for DataEntry {
 #[derive(Deserialize, Debug)]
 pub struct Response {
     pub data: Vec<Root>,
+}
+
+#[derive(Deserialize, Debug, Default)]
+pub struct ReimbursementRow {
+    pub id: Option<String>,
+    pub state: Option<String>,
+    pub trx_date: Option<String>,
+    pub user_full_name: Option<String>,
+    pub amount: Option<f64>,
+    pub distance: Option<f64>,
+    pub merchant: Option<String>,
+    pub name: Option<String>,
+    pub external_code: Option<String>,
+    pub reimb_type: Option<String>,
+    pub memo: Option<String>,
+}
+
+#[derive(Deserialize, Debug, Default)]
+pub struct Reimbursement {
+    user_full_name: Option<String>,
+    merchant: Option<String>,
+    amount: Option<f64>,
+    state: Option<String>,
+    transaction_date: Option<String>,
+    memo: Option<String>,
+
+    #[serde(rename = "type")]
+    reimb_type: Option<String>,
+
+    line_items: Vec<LineItem>,
+    distance: Option<f64>,
+}
+
+#[derive(Deserialize, Debug, Default)]
+struct LineItem {
+    pub accounting_field_selections: Vec<AccountingFieldSelection>,
+}
+
+#[derive(Deserialize, Debug, Default)]
+struct AccountingFieldSelection {
+    pub external_code: Option<String>,
+    pub name: Option<String>,
+    pub id: Option<String>,
+}
+
+#[derive(Deserialize, Debug, Default)]
+pub struct ReimbursementResponse {
+    pub data: Vec<Reimbursement>,
+}
+
+impl From<Reimbursement> for ReimbursementRow {
+    fn from(root: Reimbursement) -> Self {
+        let accounting_field_selection = root
+            .line_items
+            .first()
+            .unwrap()
+            .accounting_field_selections
+            .first()
+            .unwrap();
+
+        ReimbursementRow {
+            id: accounting_field_selection
+                .id
+                .clone()
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            user_full_name: root
+                .user_full_name
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            merchant: root
+                .merchant
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            name: accounting_field_selection
+                .name
+                .clone()
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            reimb_type: root
+                .reimb_type
+                .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),
+            state: root.state,
+            trx_date: root.transaction_date,
+            amount: root.amount,
+            distance: root.distance,
+            external_code: accounting_field_selection.external_code.clone(),
+            memo: root.memo,
+        }
+    }
 }
