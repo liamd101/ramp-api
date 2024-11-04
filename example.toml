@@ -1,0 +1,12 @@
+[client]
+id = "your-ramp-client-id"
+secret = "your-ramp-secret-token"
+
+[database]
+server = "server-name"
+driver = "sql server driver"
+database = "database-name"
+
+[database.user]
+id = "user-id"
+password = "user-password"
