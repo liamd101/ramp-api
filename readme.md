@@ -6,8 +6,8 @@ This repo contains a script for processing transactions and reimbursements from 
 
 1. Clone this repo
 2. Install cargo.
-3. Run `cargo build --release` to create an executable in `target/release/ramp`
-4. Run `./target/release/ramp` to run the script
+3. Run `cargo build --release` to create an executable in `target/release`
+4. Run `./target/release/ramp-api.exe` to run the script
 
 ## Usage
 
