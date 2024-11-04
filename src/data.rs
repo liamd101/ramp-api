@@ -120,6 +120,7 @@ pub struct Reimbursement {
     state: Option<String>,
     transaction_date: Option<String>,
     memo: Option<String>,
+    id: Option<String>,
 
     #[serde(rename = "type")]
     reimb_type: Option<String>,
@@ -156,7 +157,7 @@ impl From<Reimbursement> for ReimbursementRow {
             .unwrap();
 
         ReimbursementRow {
-            id: accounting_field_selection
+            id: root
                 .id
                 .clone()
                 .map_or_else(|| None, |f| Some(f[..50.min(f.len())].to_string())),

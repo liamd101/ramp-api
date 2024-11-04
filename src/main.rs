@@ -54,7 +54,7 @@ async fn main() -> Result<()> {
         }
     };
 
-    match database::insert_reimbursement_server(settings.database, data) {
+    match database::insert_reimbursement_server(&settings.database, data) {
         Ok(()) => info!("Successfully inserted data"),
         Err(e) => {
             error!("Error inserting data: {}", e);
@@ -62,26 +62,26 @@ async fn main() -> Result<()> {
         }
     };
 
-    // let data: Vec<data::Transaction> = match api::get_transactions(&token).await {
-    //     Ok(d) => {
-    //         info!("Successfully retrieved data");
-    //         info!("Data count: {}", d.len());
-    //         info!("Data: {:?}", d);
-    //         d
-    //     }
-    //     Err(e) => {
-    //         error!("Error getting data: {}", e);
-    //         return Err(anyhow!("Error getting data: {}", e));
-    //     }
-    // };
+    let data: Vec<data::Transaction> = match api::get_transactions(&token).await {
+        Ok(d) => {
+            info!("Successfully retrieved data");
+            info!("Data count: {}", d.len());
+            info!("Data: {:?}", d);
+            d
+        }
+        Err(e) => {
+            error!("Error getting data: {}", e);
+            return Err(anyhow!("Error getting data: {}", e));
+        }
+    };
 
-    // match database::insert_data_server(settings.database, data) {
-    //     Ok(()) => info!("Successfully inserted data"),
-    //     Err(e) => {
-    //         error!("Error inserting data: {}", e);
-    //         return Err(anyhow!("Error inserting data: {}", e));
-    //     }
-    // };
+    match database::insert_transaction_server(&settings.database, data) {
+        Ok(()) => info!("Successfully inserted data"),
+        Err(e) => {
+            error!("Error inserting data: {}", e);
+            return Err(anyhow!("Error inserting data: {}", e));
+        }
+    };
 
     info!("Successfully ran application");
 

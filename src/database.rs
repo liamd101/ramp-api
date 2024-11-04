@@ -3,7 +3,7 @@ use anyhow::Result;
 use odbc_api::{ConnectionOptions, Environment, IntoParameter};
 
 pub fn insert_transaction_server(
-    database_info: crate::config::Database,
+    database_info: &crate::config::Database,
     data: Vec<Transaction>,
 ) -> Result<()> {
     let env = Environment::new()?;
@@ -60,7 +60,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 }
 
 pub fn insert_reimbursement_server(
-    database_info: crate::config::Database,
+    database_info: &crate::config::Database,
     data: Vec<ReimbursementRow>,
 ) -> Result<()> {
     let env = Environment::new()?;
@@ -90,7 +90,7 @@ INSERT INTO [dbo].[_DSI_RampExpTrx_tbl] (
     Id, State, Trx_Date, User_Full_Name, Amount, Distance, Merchant_Name,
     Merchant_Category_Code_Description, Acct_Category_Id, Type, Memo
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             (
                 &entry.id.into_parameter(),
@@ -103,6 +103,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 &entry.name.into_parameter(),
                 &entry.external_code.into_parameter(),
                 &entry.reimb_type.into_parameter(),
+                &entry.memo.into_parameter(),
             ),
         )?;
     }
